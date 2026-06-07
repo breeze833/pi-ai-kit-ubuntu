@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y python3 ffmpeg x11-utils python3-dev py
     python3-opencv
 
 # Dependencies for rpicam-apps-hailo-postprocess
-RUN apt-get install -y rpicam-apps hailo-tappas-core-3.28.2
+RUN apt-get install -y rpicam-apps hailo-tappas-core
 # Excludes hailort as it fails to install during build stage
 
 # Dependencies for hailo-rpi5-examples
