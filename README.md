@@ -1,3 +1,6 @@
+This deleopment branch targets my configuration: RPi5 with Hailo-8L (AI Hat+ 13TOPS) on DietPi.
+The driver version is 4.23.0. Therefore, the run-time should be upgraded to Debian Trixie.
+
 # Raspberry Pi AI Kit on Ubuntu
 
 This repository provides a method of using the [Raspberry Pi AI Kit](https://www.raspberrypi.com/documentation/accessories/ai-kit.html) on Ubuntu 24.04.
@@ -19,7 +22,7 @@ We get the exact version of the driver's source code from Github:
 ```
 git clone https://github.com/hailo-ai/hailort-drivers.git
 cd hailort-drivers
-git checkout f840b6219230ec9a350444dbb903adbf0f63a373
+git checkout hailo8
 ```
 
 Then build it and install it on the host system:
@@ -32,7 +35,7 @@ sudo modprobe hailo_pci
 cd ../..
 ./download_firmware.sh
 sudo mkdir -p /lib/firmware/hailo
-sudo mv hailo8_fw.4.17.0.bin /lib/firmware/hailo/hailo8_fw.bin
+sudo mv hailo8_fw.4.23.0.bin /lib/firmware/hailo/hailo8_fw.bin
 sudo cp ./linux/pcie/51-hailo-udev.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
@@ -43,10 +46,11 @@ After a reboot you can look at the kernel buffer to see if the device is detecte
 ```
 $ sudo dmesg | grep hailo
 ...
-[    4.379687] hailo: Init module. driver version 4.17.0
+[    2.919338] hailo: Init module. driver version 4.23.0
 ...
-[    4.545602] hailo 0000:01:00.0: Firmware was loaded successfully
-[    4.572371] hailo 0000:01:00.0: Probing: Added board 1e60-2864, /dev/hailo0
+[    3.102715] hailo 0001:01:00.0: NNC Firmware loaded successfully
+[    3.102723] hailo 0001:01:00.0: FW loaded, took 183 ms
+[    3.114855] hailo 0001:01:00.0: Probing: Added board 1e60-2864, /dev/hailo0
 ```
 
 ## Build the container and open a shell
@@ -60,6 +64,8 @@ xhost +local:docker
 Build and start the container
 
 ```
+sudo apt install podman podman-compose nftables libdrm-dev mesa-vulkan-drivers mesa-utils
+
 docker compose build
 docker compose up -d hailo-ubuntu-pi
 ```
@@ -67,6 +73,8 @@ docker compose up -d hailo-ubuntu-pi
 Open a shell inside the container
 
 ```
+apt install linux-headers-$(uname -r) dkms
+
 docker compose exec hailo-ubuntu-pi /bin/bash
 ```
 
@@ -91,17 +99,14 @@ apt install hailo-all
 Check that the hardware is working from inside the container
 
 ```
-$ hailortcli fw-control identify
-Executing on device: 0000:01:00.0
+root@DietPi:~# hailortcli fw-control identify
+Executing on device: 0001:01:00.0
 Identifying board
 Control Protocol Version: 2
-Firmware Version: 4.17.0 (release,app,extended context switch buffer)
+Firmware Version: 4.23.0 (release,app,extended context switch buffer)
 Logger Version: 0
 Board Name: Hailo-8
 Device Architecture: HAILO8L
-Serial Number: <redacted>
-Part Number: <redacted>
-Product Name: HAILO-8L AI ACC M.2 B+M KEY MODULE EXT TMP
 ```
 
 [Test TAPPAS Core installation](https://github.com/hailo-ai/hailo-rpi5-examples/blob/main/doc/install-raspberry-pi5.md#test-tappas-core-installation-by-running-the-following-commands):
@@ -111,8 +116,8 @@ $ gst-inspect-1.0 hailotools
 Plugin Details:
   Name                     hailotools
   Description              hailo tools plugin
-  Filename                 /lib/aarch64-linux-gnu/gstreamer-1.0/libgsthailotools.so
-  Version                  3.28.2
+  Filename                 /usr/lib/aarch64-linux-gnu/gstreamer-1.0/libgsthailotools.so
+  Version                  5.1.0
   License                  unknown
   Source module            gst-hailo-tools
   Binary package           gst-hailo-tools
@@ -146,7 +151,7 @@ $ gst-inspect-1.0 hailo
 Plugin Details:
   Name                     hailo
   Description              hailo gstreamer plugin
-  Filename                 /lib/aarch64-linux-gnu/gstreamer-1.0/libgsthailo.so
+  Filename                 /usr/lib/aarch64-linux-gnu/gstreamer-1.0/libgsthailo.so
   Version                  1.0
   License                  unknown
   Source module            hailo
