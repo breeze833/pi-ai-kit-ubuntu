@@ -1,3 +1,8 @@
+The original [Raspberry Pi AI Kit on Ubuntu](https://github.com/canonical/pi-ai-kit-ubuntu) is a bit out of date.
+I have my own configuration and the containerization instructions are revised in the branch:
+* branch hailo8-trixie
+  * Raspberry Pi 5, Hailo-8L (AI Hat+ 13TOPS), DeitPi host OS
+
 # Raspberry Pi AI Kit on Ubuntu
 
 This repository provides a method of using the [Raspberry Pi AI Kit](https://www.raspberrypi.com/documentation/accessories/ai-kit.html) on Ubuntu 24.04.
